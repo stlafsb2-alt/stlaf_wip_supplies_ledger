@@ -93,12 +93,13 @@
 <button class="btn w-100 text-white fw-bold" style="background:#123765;">Save All Items</button>
 </form></div></div></div></div>
 <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/assets/toast.js"></script>
 <script src="/stlaf_wip_supplies_ledger/frontend/admin/assets/admin.js"></script>
 <script>
 document.getElementById('addRow').addEventListener('click', function(){ const row=document.querySelector('.item-row').cloneNode(true); row.querySelectorAll('input').forEach(i=>i.value=''); row.querySelectorAll('select').forEach(s=>s.value=''); document.getElementById('itemRows').appendChild(row); });
 document.addEventListener('click', function(e){ if(e.target.classList && e.target.classList.contains('remove-row') && document.querySelectorAll('.item-row').length>1) e.target.closest('.item-row').remove(); });
 document.addEventListener('DOMContentLoaded', function(){ document.querySelectorAll('.date-field').forEach(d=>{ if(!d.value) d.value = new Date().toISOString().slice(0,10); }); });
-document.getElementById('insForm').addEventListener('submit', async function(e){ e.preventDefault(); const form = new FormData(this); const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/ins_form_submit.php',{method:'POST', credentials:'include', body: form}); const j = await res.json(); if(j.success) { alert('Saved'); location.reload(); } else alert('Failed'); });
+document.getElementById('insForm').addEventListener('submit', async function(e){ e.preventDefault(); const form = new FormData(this); const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/ins_form_submit.php',{method:'POST', credentials:'include', body: form}); const j = await res.json(); if(j.success) { showToast('Item saved.', true); setTimeout(()=>location.reload(), 1200); } else showToast(j.message||'Failed to save item.', false); });
 </script>
 </body>
 </html>

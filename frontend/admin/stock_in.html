@@ -91,6 +91,7 @@
 <button class="btn w-100 text-white fw-bold" style="background:#123765;">Save Stock In</button>
 </form></div></div></div></div>
 <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/assets/toast.js"></script>
 <script src="/stlaf_wip_supplies_ledger/frontend/admin/assets/admin.js"></script>
 <script>
 async function loadItems(){ const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/inventory_json.php?limit=1000',{credentials:'include'}); const j=await res.json(); const selects = document.querySelectorAll('.select-item'); selects.forEach(s=>{ s.innerHTML = '<option value="">-- Select Item --</option>' + j.items.map(it=>`<option value="${it.id}">${it.description} (On Hand: ${it.qty_on_hand} ${it.unit})</option>`).join(''); }); }
@@ -98,7 +99,7 @@ async function loadItems(){ const res = await fetch('/stlaf_wip_supplies_ledger/
 document.getElementById('addRow').addEventListener('click', function(){ const row = document.querySelector('.stock-row').cloneNode(true); row.querySelectorAll('input').forEach(i=>i.value=''); row.querySelectorAll('select').forEach(s=>s.value=''); document.getElementById('stockRows').appendChild(row); loadItems(); });
 document.addEventListener('click', function(e){ if(e.target.classList && e.target.classList.contains('remove-row') && document.querySelectorAll('.stock-row').length>1) e.target.closest('.stock-row').remove(); });
 
-document.getElementById('stockForm').addEventListener('submit', async function(e){ e.preventDefault(); const form = new FormData(this); const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/stock_in_submit.php',{method:'POST', credentials:'include', body: form}); const j=await res.json(); if(j.success){ alert('Saved'); location.reload(); } else alert('Failed'); });
+document.getElementById('stockForm').addEventListener('submit', async function(e){ e.preventDefault(); const form = new FormData(this); const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/stock_in_submit.php',{method:'POST', credentials:'include', body: form}); const j=await res.json(); if(j.success){ showToast('Stock in recorded.', true); setTimeout(()=>location.reload(), 1200); } else showToast(j.message||'Failed to record stock in.', false); });
 
 document.addEventListener('DOMContentLoaded', function(){ loadItems(); document.querySelectorAll('.date-field').forEach(d=>{ if(!d.value) d.value = new Date().toISOString().slice(0,10); }); });
 </script>

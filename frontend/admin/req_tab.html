@@ -136,6 +136,7 @@
     </div>
 
     <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/assets/toast.js"></script>
 <script src="/stlaf_wip_supplies_ledger/frontend/admin/assets/admin.js"></script>
     <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/all.min.js"></script>
     <script>
@@ -221,10 +222,11 @@
                     body: form.toString()
                 });
                 const json = await res.json();
-                if (json.status === 'success') loadPendingRequests();
-                else alert('Failed: ' + (json.message || 'unknown'));
+                if (json.status === 'success') { showToast('Request ' + status.toLowerCase() + '.', true); loadPendingRequests(); }
+                else showToast('Failed: ' + (json.message || 'unknown'), false);
             } catch (e) {
                 console.error('Update error', e);
+                showToast('Connection error.', false);
             }
         }
 
@@ -240,10 +242,11 @@
                     body: form.toString()
                 });
                 const text = await res.text();
-                if (text.trim() === 'success') loadPendingRequests();
-                else alert('Delete failed: ' + text);
+                if (text.trim() === 'success') { showToast('Request deleted.', true); loadPendingRequests(); }
+                else showToast('Delete failed: ' + text, false);
             } catch (e) {
                 console.error('Delete error:', e);
+                showToast('Connection error.', false);
             }
         }
 
@@ -279,13 +282,15 @@
                     });
                     const json = await res.json();
                     if (json.status === 'success') {
+                        showToast('Request declined.', true);
                         loadPendingRequests();
                         bootstrap.Modal.getInstance(document.getElementById('declineModal')).hide();
                     } else {
-                        alert('Failed: ' + (json.message || 'unknown'));
+                        showToast('Failed: ' + (json.message || 'unknown'), false);
                     }
                 } catch (e) {
                     console.error('Decline error', e);
+                    showToast('Connection error.', false);
                 }
             });
         });
