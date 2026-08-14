@@ -18,7 +18,8 @@ header('Content-Type: application/json; charset=utf-8');
 try {
 
 $name        = $_POST['name'] ?? '';
-$department  = $_POST['department'] ?? '';
+$department  = strtolower(trim($_POST['department'] ?? ''));
+$departmentForDb = strtoupper($department); // department_type enum requires uppercase values
 $items       = $_POST['item'] ?? [];
 $sizes       = $_POST['size'] ?? [];
 $product_ids = $_POST['product_id'] ?? [];
@@ -59,9 +60,9 @@ if ($department === 'all') {
         $quantity = $quantities[$i] ?? 0;
         $unit = $units[$i] ?? '';
         $stmt = $conn->prepare("INSERT INTO req_form (name, department, item, size, product_id, quantity, unit, date_req, status) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'Pending')");
-        if (!$stmt->execute([$name, $department, $itemName, $size, $product_id, $quantity, $unit])) $ok = false;
+        if (!$stmt->execute([$name, $departmentForDb, $itemName, $size, $product_id, $quantity, $unit])) $ok = false;
     }
-    sendSupplyRequestEmail($name, $department, implode(', ', $items), implode(', ', $product_ids), implode(', ', $quantities), implode(', ', $units));
+    sendSupplyRequestEmail($name, $departmentForDb, implode(', ', $items), implode(', ', $product_ids), implode(', ', $quantities), implode(', ', $units));
 }
 
 if ($ok) echo json_encode(['status'=>'success','message'=>'Requests submitted']);
