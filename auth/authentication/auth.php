@@ -30,7 +30,6 @@ class User
                     $updateStmt->execute([$hashed, $user['user_id']]);
                 }
 
-                session_start();
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['department'] = $user['department'];
@@ -46,7 +45,6 @@ class User
 
     public function loginAsEmployee()
     {
-        session_start();
         $_SESSION['show_guest_alert'] = true;
         $_SESSION['user_id'] = 1;
         $_SESSION['username'] = 'employee';
@@ -91,7 +89,6 @@ class User
 
     public function loginAsMeetingGuest()
     {
-        session_start();
         $_SESSION['booking_mode'] = true;
 
         header("Location: backend/booking/booking.php");

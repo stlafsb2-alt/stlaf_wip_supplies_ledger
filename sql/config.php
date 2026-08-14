@@ -1,4 +1,8 @@
 <?php
+
+ini_set('display_errors', '0');
+error_reporting(E_ALL); // still logs everything, just doesn't print it to the browser
+
 if (!defined("BASE_URL")) {
     define("BASE_URL", "/stlaf_wip_supplies_ledger/");
 }
