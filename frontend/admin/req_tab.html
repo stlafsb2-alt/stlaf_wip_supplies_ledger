@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STLAF | Request Tab</title>
+    <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="/stlaf_wip_supplies_ledger/assets/images/sub_logo_light.png">
+    <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/style.css">
+    <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/super.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <div class="d-flex">
+        <aside id="sidebar" class="sidebar-toggle">
+            <div class="sidebar-logo mt-3">
+                <img src="/stlaf_wip_supplies_ledger/assets/images/official_logo.png" width="80px" height="80px">
+            </div>
+            <div class="menu-title">Navigation</div>
+
+            <li class="sidebar-item">
+                <a href="admin_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-cast"></i>
+                    <span style="font-size: 18px;">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="req_tab.html" class="sidebar-link active">
+                    <i class="bi bi-box"></i>
+                    <span style="font-size: 18px;">Employee Requests</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="ins_form.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Ins Forms</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_in.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Stock In</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_out.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Deducted Items</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="inventory_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span style="font-size: 18px;">Supply Tracking</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="config_item.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Configuration</span></a>
+            </li>
+             <li class="sidebar-item">
+                <a href="supply.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Update Supplier & Date</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="summary.html" class="sidebar-link active"><i class="bi bi-clipboard-data"></i></i>
+                    <span>Summary</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="archived_items.html" class="sidebar-link active"><i class="bi bi-archive"></i>
+                    <span>Archived Items</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/stlaf_wip_supplies_ledger/logout.php" class="sidebar-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span style="font-size: 18px;">Logout</span>
+                </a>
+            </li>
+        </aside>
+
+        <div class="main">
+            <div class="topbar">
+                <div class="toggle">
+                    <button class="toggler-btn" type="button">
+                        <i class="bi bi-list-ul" style="font-size: 28px;"></i>
+                    </button>
+                </div>
+                <div class="logo d-flex align-items-center">
+                    <span class="username me-2 fw-bold text-primary">
+                        Admin
+                    </span>
+                </div>
+            </div>
+
+            <div style="width:95%; margin:20px auto; background:#f8f9fa; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                <div class="card shadow-lg border-0 p-4 rounded-4" style="height: 83vh;">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                        <h3 class="fw-bold m-0">Pending Requests</h3>
+                        <input type="text" id="searchInput" class="form-control" style="max-width: 300px;" placeholder="🔍 Search request...">
+                    </div>
+
+                    <div class="table-container p-4 shadow-sm rounded-4 bg-white">
+                        <div id="requestsWrapper" class="table-responsive elegant-table" style="max-height: 600px; overflow-y: auto;">
+                            Loading...
+                        </div>
+                    </div>
+                    <nav>
+                        <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="declineModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title">Decline Request</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="declineForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="request_id" id="declineRequestId">
+                        <label class="form-label">Reason for Decline:</label>
+                        <textarea name="reason" class="form-control" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/frontend/admin/assets/admin.js"></script>
+    <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/all.min.js"></script>
+    <script>
+        function escapeHtml(s) { return String(s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c)); }
+
+        function renderPending(requests) {
+            const pending = requests.filter(r => !['cancelled','delivered'].includes((r.status||'').toLowerCase()));
+            if (!pending.length) return `<div class="text-center text-muted py-3">No requests available.</div>`;
+
+            const rows = pending.map(r => {
+                const status = (r.status||'').toLowerCase();
+                const badge = status === 'pending' ? 'secondary' : (status === 'approved' ? 'success' : 'secondary');
+                const actions = [];
+                if (status === 'pending') {
+                    actions.push(`<button onclick="updateRequestStatus(${r.req_id}, 'Approved')" class="btn btn-success btn-sm px-2 shadow-sm">Approve</button>`);
+                    actions.push(`<button onclick="openDeclineModal(${r.req_id})" class="btn btn-danger btn-sm px-2 shadow-sm">Decline</button>`);
+                } else if (status === 'approved') {
+                    actions.push(`<button onclick="updateRequestStatus(${r.req_id}, 'Delivered')" class="btn btn-primary btn-sm px-2 shadow-sm">Delivered</button>`);
+                }
+                actions.push(`<button onclick="deleteRequest(${r.req_id})" class="btn btn-outline-danger btn-sm px-2 shadow-sm"><i class="bi bi-trash"></i></button>`);
+
+                return `
+                    <tr class="text-center">
+                        <td><span class="fw-bold text-primary">${escapeHtml(r.req_id)}</span></td>
+                        <td>${escapeHtml(r.name)}</td>
+                        <td>${escapeHtml(r.department)}</td>
+                        <td>${escapeHtml(r.item)}</td>
+                        <td>${escapeHtml(r.quantity)}</td>
+                        <td>${escapeHtml(r.unit)}</td>
+                        <td><span class="badge bg-${badge} px-3 py-2 shadow-sm">${escapeHtml(r.status)}</span></td>
+                        <td>${actions.join(' ')}</td>
+                    </tr>`;
+            }).join('');
+
+            return `
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Unit</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestTableBody">
+                        ${rows}
+                    </tbody>
+                </table>`;
+        }
+
+        async function loadPendingRequests() {
+            try {
+                const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/admin_requests_json.php', { credentials: 'include' });
+                if (!res.ok) throw new Error('network');
+                const requests = await res.json();
+                document.getElementById('requestsWrapper').innerHTML = renderPending(requests);
+            } catch (e) {
+                console.error('Fetch error:', e);
+            }
+        }
+
+        function openDeclineModal(id) {
+            const modal = new bootstrap.Modal(document.getElementById('declineModal'));
+            document.getElementById('declineRequestId').value = id;
+            modal.show();
+        }
+
+        async function updateRequestStatus(id, status) {
+            try {
+                const form = new URLSearchParams();
+                form.append('method', 'updateStatus');
+                form.append('req_id', id);
+                form.append('status', status);
+
+                const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/update_status.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: form.toString()
+                });
+                const json = await res.json();
+                if (json.status === 'success') loadPendingRequests();
+                else alert('Failed: ' + (json.message || 'unknown'));
+            } catch (e) {
+                console.error('Update error', e);
+            }
+        }
+
+        async function deleteRequest(reqId) {
+            if (!confirm('Are you sure you want to permanently delete this request?')) return;
+            try {
+                const form = new URLSearchParams();
+                form.append('request_id', reqId);
+                const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/delete_request.php', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: form.toString()
+                });
+                const text = await res.text();
+                if (text.trim() === 'success') loadPendingRequests();
+                else alert('Delete failed: ' + text);
+            } catch (e) {
+                console.error('Delete error:', e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPendingRequests();
+            setInterval(loadPendingRequests, 3000);
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keyup', function() {
+                const filter = searchInput.value.toLowerCase().trim();
+                document.querySelectorAll('#requestTableBody tr').forEach(row => {
+                    row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+                });
+            });
+
+            // decline form submit
+            document.getElementById('declineForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const id = document.getElementById('declineRequestId').value;
+                const reason = this.reason.value;
+                try {
+                    const form = new URLSearchParams();
+                    form.append('method', 'updateStatus');
+                    form.append('req_id', id);
+                    form.append('status', 'Cancelled');
+                    form.append('reason', reason);
+
+                    const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/update_status.php', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: form.toString()
+                    });
+                    const json = await res.json();
+                    if (json.status === 'success') {
+                        loadPendingRequests();
+                        bootstrap.Modal.getInstance(document.getElementById('declineModal')).hide();
+                    } else {
+                        alert('Failed: ' + (json.message || 'unknown'));
+                    }
+                } catch (e) {
+                    console.error('Decline error', e);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

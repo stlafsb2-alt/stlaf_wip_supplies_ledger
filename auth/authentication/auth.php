@@ -17,10 +17,8 @@ class User
         $password = trim($password);
 
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1");
-        $stmt->bind_param("ss", $usernameOrEmail, $usernameOrEmail);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
+        $stmt->execute([$usernameOrEmail, $usernameOrEmail]);
+        $user = $stmt->fetch();
 
         if ($user) {
             $dbPassword = $user['password'];
@@ -29,8 +27,7 @@ class User
 
                     $hashed = password_hash($dbPassword, PASSWORD_DEFAULT);
                     $updateStmt = $this->conn->prepare("UPDATE users SET password = ? WHERE user_id = ?");
-                    $updateStmt->bind_param("si", $hashed, $user['user_id']);
-                    $updateStmt->execute();
+                    $updateStmt->execute([$hashed, $user['user_id']]);
                 }
 
                 session_start();
@@ -55,7 +52,7 @@ class User
         $_SESSION['username'] = 'employee';
         $_SESSION['department'] = 'employee';
 
-        header("Location: backend/guest/guest_dashboard.php");
+        header("Location: /stlaf_wip_supplies_ledger/frontend/guest/guest_dashboard.html");
         exit();
     }
 
@@ -69,7 +66,7 @@ class User
                 header("Location: backend/accounting/auditing.php");
                 break;
             case 'admin':
-                header("Location: backend/admin/admin_dashboard.php");
+                header("Location: /stlaf_wip_supplies_ledger/frontend/admin/admin_dashboard.html");
                 break;
             case 'corporate':
                 header("Location: backend/corporate/corporate_dashboard.php");

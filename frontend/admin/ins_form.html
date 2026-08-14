@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STLAF | Ins Form</title>
+<link rel="icon" href="/stlaf_wip_supplies_ledger/assets/images/sub_logo_light.png">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/style.css">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/super.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<div class="d-flex"><aside id="sidebar" class="sidebar-toggle">
+            <div class="sidebar-logo mt-3">
+                <img src="/stlaf_wip_supplies_ledger/assets/images/official_logo.png" width="80px" height="80px">
+            </div>
+            <div class="menu-title">Navigation</div>
+
+            <li class="sidebar-item">
+                <a href="admin_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-cast"></i>
+                    <span style="font-size: 18px;">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="req_tab.html" class="sidebar-link active">
+                    <i class="bi bi-box"></i>
+                    <span style="font-size: 18px;">Employee Requests</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="ins_form.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Ins Forms</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_in.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Stock In</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_out.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Deducted Items</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="inventory_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span style="font-size: 18px;">Supply Tracking</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="config_item.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Configuration</span></a>
+            </li>
+             <li class="sidebar-item">
+                <a href="supply.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Update Supplier & Date</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="summary.html" class="sidebar-link active"><i class="bi bi-clipboard-data"></i></i>
+                    <span>Summary</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="archived_items.html" class="sidebar-link active"><i class="bi bi-archive"></i>
+                    <span>Archived Items</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/stlaf_wip_supplies_ledger/logout.php" class="sidebar-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span style="font-size: 18px;">Logout</span>
+                </a>
+            </li>
+        </aside><div class="main"><div class="topbar"><div class="toggle"><button class="toggler-btn"><i class="bi bi-list-ul"></i></button></div></div>
+<div class="container mt-4"><div class="card shadow p-4 border-0" style="background:#f7f9fc;"><h4 class="mb-3 fw-bold" style="color:#123765;">Add New Supply Item</h4>
+<form id="insForm">
+<div id="itemRows">
+<div class="row item-row border rounded p-3 mb-3">
+<div class="col-md-6 mb-2"><label class="form-label fw-bold">ITEM | DESCRIPTION | SIZE/GRAM</label><input type="text" name="description[]" class="form-control" required></div>
+<div class="col-md-3 mb-2"><label class="form-label fw-bold">Unit</label><select name="unit[]" class="form-select" required><option value="BOTTLE">BOTTLE</option><option value="PC">PC</option><option value="REAM">REAM</option><option value="PACK">PACK</option><option value="BOX">BOX</option><option value="ROLL">ROLL</option></select></div>
+<div class="col-md-3 mb-2"><label class="form-label fw-bold">Unit Price</label><input type="number" step="0.01" name="unit_price[]" class="form-control"></div>
+<div class="col-md-4 mb-2"><label class="form-label fw-bold">Supplier</label><input type="text" name="supplier[]" class="form-control"></div>
+<div class="col-md-3 mb-2"><label class="form-label fw-bold">Date</label><input type="date" name="date_added[]" class="form-control date-field" value="" required></div>
+<div class="col-md-3 mb-2"><label class="form-label fw-bold">Department</label><select name="department[]" class="form-select"><option value="ALL">ALL</option><option value="HR">HR</option><option value="ACCOUNTING">ACCOUNTING</option><option value="CORPORATE">CORPORATE</option><option value="MARKETING">MARKETING</option><option value="LITIGATION">LITIGATION</option><option value="I.T">I.T</option></select></div>
+<div class="col-md-1 mb-2"><label class="form-label fw-bold">Threshold</label><input type="number" name="threshold[]" value="0" class="form-control"></div>
+<div class="col-md-1 d-flex align-items-end mb-2"><button type="button" class="btn btn-danger remove-row w-100"><i class="bi bi-dash-circle"></i></button></div>
+</div>
+</div>
+<button type="button" id="addRow" class="btn btn-secondary fw-bold mb-3"><i class="bi bi-plus-circle"></i> Add Another Item</button>
+<button class="btn w-100 text-white fw-bold" style="background:#123765;">Save All Items</button>
+</form></div></div></div></div>
+<script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/frontend/admin/assets/admin.js"></script>
+<script>
+document.getElementById('addRow').addEventListener('click', function(){ const row=document.querySelector('.item-row').cloneNode(true); row.querySelectorAll('input').forEach(i=>i.value=''); row.querySelectorAll('select').forEach(s=>s.value=''); document.getElementById('itemRows').appendChild(row); });
+document.addEventListener('click', function(e){ if(e.target.classList && e.target.classList.contains('remove-row') && document.querySelectorAll('.item-row').length>1) e.target.closest('.item-row').remove(); });
+document.addEventListener('DOMContentLoaded', function(){ document.querySelectorAll('.date-field').forEach(d=>{ if(!d.value) d.value = new Date().toISOString().slice(0,10); }); });
+document.getElementById('insForm').addEventListener('submit', async function(e){ e.preventDefault(); const form = new FormData(this); const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/ins_form_submit.php',{method:'POST', credentials:'include', body: form}); const j = await res.json(); if(j.success) { alert('Saved'); location.reload(); } else alert('Failed'); });
+</script>
+</body>
+</html>

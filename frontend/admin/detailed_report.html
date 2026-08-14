@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STLAF | Detailed Requests</title>
+<link rel="icon" href="/stlaf_wip_supplies_ledger/assets/images/sub_logo_light.png">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/style.css">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/super.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="d-flex"><aside id="sidebar" class="sidebar-toggle">
+            <div class="sidebar-logo mt-3">
+                <img src="/stlaf_wip_supplies_ledger/assets/images/official_logo.png" width="80px" height="80px">
+            </div>
+            <div class="menu-title">Navigation</div>
+
+            <li class="sidebar-item">
+                <a href="admin_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-cast"></i>
+                    <span style="font-size: 18px;">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="req_tab.html" class="sidebar-link active">
+                    <i class="bi bi-box"></i>
+                    <span style="font-size: 18px;">Employee Requests</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="ins_form.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Ins Forms</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_in.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Stock In</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_out.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Deducted Items</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="inventory_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span style="font-size: 18px;">Supply Tracking</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="config_item.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Configuration</span></a>
+            </li>
+             <li class="sidebar-item">
+                <a href="supply.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Update Supplier & Date</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="summary.html" class="sidebar-link active"><i class="bi bi-clipboard-data"></i></i>
+                    <span>Summary</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="archived_items.html" class="sidebar-link active"><i class="bi bi-archive"></i>
+                    <span>Archived Items</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/stlaf_wip_supplies_ledger/logout.php" class="sidebar-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span style="font-size: 18px;">Logout</span>
+                </a>
+            </li>
+        </aside><div class="main"><div class="topbar"><div class="toggle"><button class="toggler-btn"><i class="bi bi-list-ul"></i></button></div></div>
+<div style="padding:20px;">
+  <div class="d-flex gap-2 mb-3" style="max-width:420px;">
+    <select id="monthSelect" class="form-select"><option value="">All Months</option></select>
+    <select id="yearSelect" class="form-select"><option value="">All Years</option></select>
+    <button id="downloadPdf" class="btn btn-secondary">Download PDF (Server)</button>
+    <button id="downloadPdfClient" class="btn btn-outline-primary">Download PDF (Client)</button>
+  </div>
+  <div class="table-responsive shadow-sm bg-white rounded p-3"><table class="table table-sm table-striped"><thead><tr><th>Name</th><th>Department</th><th>Item</th><th>Qty</th><th>Unit</th><th>Date</th><th>Status</th></tr></thead><tbody id="recordsBody">Loading...</tbody></table></div>
+  </div>
+</div></div>
+<script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script>
+(function(){ const monthSelect=document.getElementById('monthSelect'); for(let m=1;m<=12;m++){const opt=document.createElement('option'); opt.value=m; opt.text = new Date(2020,m-1,1).toLocaleString('default',{month:'long'}); monthSelect.appendChild(opt);} const yearSelect=document.getElementById('yearSelect'); const start=2024; const cur=new Date().getFullYear(); for(let y=cur;y>=start;y--){const o=document.createElement('option'); o.value=y; o.text=y; yearSelect.appendChild(o);} })();
+
+async function loadRecords(){ const month=document.getElementById('monthSelect').value; const year=document.getElementById('yearSelect').value; const res = await fetch(`/stlaf_wip_supplies_ledger/backend/admin/detailed_records_json.php?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}`,{credentials:'include'}); if(!res.ok) return; const j=await res.json(); const b=document.getElementById('recordsBody'); b.innerHTML=''; j.records.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${r.name}</td><td>${r.department}</td><td>${r.item}</td><td class="text-center">${r.quantity||'-'}</td><td class="text-center">${r.unit||'-'}</td><td>${r.date_req}</td><td><strong>${r.status}</strong></td>`; b.appendChild(tr); }); }
+
+document.getElementById('monthSelect').addEventListener('change', loadRecords);
+document.getElementById('yearSelect').addEventListener('change', loadRecords);
+document.getElementById('downloadPdf').addEventListener('click', function(e){ e.preventDefault(); const month=document.getElementById('monthSelect').value; const year=document.getElementById('yearSelect').value; const url = `/stlaf_wip_supplies_ledger/backend/admin/download_detailed_records.php?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}`; window.open(url, '_blank'); });
+
+document.getElementById('downloadPdfClient').addEventListener('click', async function(e){
+  e.preventDefault();
+  // capture the records table and generate multipage PDF
+  const container = document.querySelector('.table-responsive');
+  const canvas = await html2canvas(container, {scale:2});
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p','mm','a4');
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfPageHeight = pdf.internal.pageSize.getHeight();
+  const imgWidth = pdfWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  if (imgHeight <= pdfPageHeight) {
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+  } else {
+    // split into pages
+    const pageCanvas = document.createElement('canvas');
+    const ctx = pageCanvas.getContext('2d');
+    const pxPerMm = canvas.width / (pdfWidth);
+    const sliceHeight = Math.floor(pxPerMm * pdfPageHeight);
+    pageCanvas.width = canvas.width;
+    let y = 0;
+    while (y < canvas.height) {
+      const h = Math.min(sliceHeight, canvas.height - y);
+      pageCanvas.height = h;
+      ctx.clearRect(0,0,pageCanvas.width,pageCanvas.height);
+      ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, pageCanvas.width, pageCanvas.height);
+      const imgPart = pageCanvas.toDataURL('image/png');
+      if (y > 0) pdf.addPage();
+      pdf.addImage(imgPart, 'PNG', 0, 0, imgWidth, (h * imgWidth) / canvas.width);
+      y += h;
+    }
+  }
+  const month=document.getElementById('monthSelect').value;
+  const year=document.getElementById('yearSelect').value;
+  const fname = `detailed_report_${month||'all'}_${year||'all'}.pdf`;
+  pdf.save(fname);
+});
+window.addEventListener('DOMContentLoaded', loadRecords);
+</script>
+</body>
+</html>

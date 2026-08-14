@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STLAF | Supply Tracking</title>
+<link rel="icon" type="image/png" href="/stlaf_wip_supplies_ledger/assets/images/sub_logo_light.png">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.min.css">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/style.css">
+<link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/super.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<div class="d-flex">
+<aside id="sidebar" class="sidebar-toggle">
+            <div class="sidebar-logo mt-3">
+                <img src="/stlaf_wip_supplies_ledger/assets/images/official_logo.png" width="80px" height="80px">
+            </div>
+            <div class="menu-title">Navigation</div>
+
+            <li class="sidebar-item">
+                <a href="admin_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-cast"></i>
+                    <span style="font-size: 18px;">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="req_tab.html" class="sidebar-link active">
+                    <i class="bi bi-box"></i>
+                    <span style="font-size: 18px;">Employee Requests</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="ins_form.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Ins Forms</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_in.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Stock In</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_out.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Deducted Items</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="inventory_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span style="font-size: 18px;">Supply Tracking</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="config_item.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Configuration</span></a>
+            </li>
+             <li class="sidebar-item">
+                <a href="supply.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Update Supplier & Date</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="summary.html" class="sidebar-link active"><i class="bi bi-clipboard-data"></i></i>
+                    <span>Summary</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="archived_items.html" class="sidebar-link active"><i class="bi bi-archive"></i>
+                    <span>Archived Items</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/stlaf_wip_supplies_ledger/logout.php" class="sidebar-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span style="font-size: 18px;">Logout</span>
+                </a>
+            </li>
+        </aside>
+<div class="main">
+ <div class="topbar"> <div class="toggle"><button class="toggler-btn"><i class="bi bi-list-ul"></i></button></div></div>
+ <div style="width:95%; margin:20px auto;">
+  <div class="card shadow-lg border-0 p-4 rounded-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="fw-bold m-0">📦 Supply Tracker</h3>
+      <div class="d-flex gap-2"><input id="searchInput" class="form-control" style="max-width:280px;" placeholder="🔍 Search item..."><button class="btn btn-warning fw-bold" id="lowStockBtn"><i class="bi bi-exclamation-triangle"></i> Low Stock</button></div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead><tr><th>Description</th><th class="text-center">Unit</th><th class="text-center">Remaining Stock</th><th class="text-center">Status</th></tr></thead>
+        <tbody id="inventoryTable">Loading...</tbody>
+      </table>
+    </div>
+    <nav class="mt-3"><ul class="pagination justify-content-center" id="pagination"></ul></nav>
+    <div class="alert alert-warning mt-3 fw-bold text-center">⚠️ Items highlighted in YELLOW are below safe stock level.</div>
+  </div>
+ </div>
+</div>
+</div>
+
+<!-- low stock modal -->
+<div class="modal fade" id="lowStockModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="bi bi-info-circle"></i> Low Stock Items</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><table class="table table-bordered table-hover"><thead class="table-primary"><tr><th>Description</th><th class="text-center">Unit</th><th class="text-center">Remaining</th><th class="text-center">Threshold</th></tr></thead><tbody id="lowBody"></tbody></table></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div></div></div></div>
+
+<script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/frontend/admin/assets/admin.js"></script>
+<script>
+async function loadInventory(page=1, search=''){
+ const res = await fetch(`/stlaf_wip_supplies_ledger/backend/admin/inventory_json.php?page=${page}&search=${encodeURIComponent(search)}`, {credentials:'include'});
+ if(!res.ok) return;
+ const data = await res.json();
+ const tbody = document.getElementById('inventoryTable'); tbody.innerHTML='';
+ data.items.forEach(it=>{
+  const tr = document.createElement('tr');
+  tr.className = (it.qty_on_hand < (it.threshold||10)) ? 'table-warning' : '';
+  tr.innerHTML = `<td>${it.description}</td><td class="text-center">${it.unit}</td><td class="fw-bold text-center">${it.qty_on_hand}</td><td class="text-center">${it.qty_on_hand < (it.threshold||10) ? '<span class="badge bg-warning text-dark">LOW STOCK</span>' : '<span class="badge bg-success">OK</span>'}</td>`;
+  tbody.appendChild(tr);
+ });
+ // low stock list
+ document.getElementById('lowBody').innerHTML = data.low.map(l=>`<tr><td>${l.description}</td><td class="text-center">${l.unit}</td><td class="fw-bold text-center">${l.qty_on_hand}</td><td class="text-center">${l.threshold}</td></tr>`).join('')||'<tr><td colspan="4" class="text-center fw-bold text-primary">✔ All items are above the safe stock level.</td></tr>';
+ // pagination
+ const pag = document.getElementById('pagination'); pag.innerHTML=''; for(let i=1;i<=data.totalPages;i++){const li=document.createElement('li');li.className='page-item '+(i===data.page?'active':'');li.innerHTML=`<a class="page-link" href="#">${i}</a>`;li.addEventListener('click',e=>{e.preventDefault(); loadInventory(i, document.getElementById('searchInput').value)});pag.appendChild(li);} }
+
+document.getElementById('searchInput').addEventListener('keyup', (e)=>{ if(e.keyCode===13) loadInventory(1, document.getElementById('searchInput').value); });
+document.getElementById('lowStockBtn').addEventListener('click', ()=> new bootstrap.Modal(document.getElementById('lowStockModal')).show());
+window.addEventListener('DOMContentLoaded', ()=> loadInventory());
+</script>
+</body>
+</html>

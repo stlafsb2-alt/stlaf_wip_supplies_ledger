@@ -24,10 +24,8 @@ if (!$stmt) {
     exit();
 }
 
-$stmt->bind_param("i", $request_id);
-
-if ($stmt->execute()) {
-    if ($stmt->affected_rows > 0) {
+if ($stmt->execute([$request_id])) {
+    if ($stmt->rowCount() > 0) {
         echo "success";
     } else {
         echo "not_found";

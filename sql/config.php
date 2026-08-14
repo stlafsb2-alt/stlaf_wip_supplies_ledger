@@ -6,32 +6,50 @@ if (!defined("BASE_URL")) {
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-class Database {
-    private $host = "127.0.0.1";
-    private $port = 3306;
-    private $dbname = "stlaf_ledger_supplies";
-    private $username = "root";
-    private $password = "";
+
+// Requires: composer require vlucas/phpdotenv
+// (see the no-dependency fallback in chat if you'd rather not add the package)
+require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->safeLoad();
+
+class Database
+{
     private $conn;
 
-    public function __construct() {
-        $this->conn = new mysqli(
-            $this->host,
-            $this->username,
-            $this->password,
-            $this->dbname,
-            $this->port
-        );
+    public function __construct()
+    {
+        $databaseUrl = $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL');
 
-        if ($this->conn->connect_error) {
-            die("Connection failed (MySQLi): " . $this->conn->connect_error);
+        if (!$databaseUrl) {
+            die("Connection failed: DATABASE_URL is not set in .env");
         }
 
-        $this->conn->set_charset("utf8mb4");
+        $parts = parse_url($databaseUrl);
+        if ($parts === false || !isset($parts['host'])) {
+            die("Connection failed: DATABASE_URL is malformed");
+        }
+
+        $host   = $parts['host'];
+        $port   = $parts['port'] ?? 5432;
+        $dbname = isset($parts['path']) ? ltrim($parts['path'], '/') : 'postgres';
+        $user   = isset($parts['user']) ? rawurldecode($parts['user']) : '';
+        $pass   = isset($parts['pass']) ? rawurldecode($parts['pass']) : '';
+
+        $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};sslmode=require";
+
+        try {
+            $this->conn = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
+        } catch (PDOException $e) {
+            die("Connection failed (PDO pgsql): " . $e->getMessage());
+        }
     }
 
-    public function getConnection() {
+    public function getConnection()
+    {
         return $this->conn;
     }
 }
-?>

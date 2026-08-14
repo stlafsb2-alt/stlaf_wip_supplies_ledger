@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STLAF | Requests List</title>
+  <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/guest/assets/style.css">
+  <link rel="icon" href="/stlaf_wip_supplies_ledger/assets/images/sub_logo_light.png">
+</head>
+<body>
+<nav class="navbar px-4 bg-light"><div class="d-flex align-items-center"><img src="/stlaf_wip_supplies_ledger/assets/images/official_logo.png" width="80"></div><div><a href="/stlaf_wip_supplies_ledger/logout.php"><button class="logout-btn">Logout</button></a></div></nav>
+<div class="container mt-4">
+  <div class="card shadow p-4" style="margin:auto;">
+    <div class="d-flex justify-content-between mb-3">
+      <h4 class="m-0">All Requests</h4>
+      <div class="d-flex gap-2 align-items-center">
+        <input id="searchInput" class="form-control" style="max-width:260px;" placeholder="🔍 Search request...">
+        <select id="departmentFilter" class="form-select" style="max-width:180px;"><option value="all">All</option></select>
+      </div>
+    </div>
+
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+      <table class="table table-bordered table-hover text-center align-middle" id="requestsTable">
+        <thead class="table-primary"><tr><th>#</th><th>Name</th><th>Item</th><th>Quantity</th><th>Unit</th><th>Department</th><th>Status</th><th>Date Requested</th></tr></thead>
+        <tbody id="requestsBody">Loading...</tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/frontend/guest/assets/re.js"></script>
+<script>
+async function loadRequests(){ const res = await fetch('/stlaf_wip_supplies_ledger/backend/guest/requests_json.php',{credentials:'include'}); if(!res.ok) return; const j=await res.json(); const rows = j.requests||[]; const body=document.getElementById('requestsBody'); body.innerHTML=''; const depts = new Set(); rows.forEach(r=>{ depts.add(r.department||''); const tr=document.createElement('tr'); tr.dataset.department = r.department || ''; tr.innerHTML = `<td>${r.req_id}</td><td>${r.name}</td><td>${r.item}</td><td>${r.quantity}</td><td>${r.unit}</td><td>${r.department}</td><td>${r.status}</td><td>${r.date_req}</td>`; body.appendChild(tr); }); // populate dept filter
+  const sel = document.getElementById('departmentFilter'); sel.innerHTML = '<option value="all">All</option>'; Array.from(depts).filter(d=>d).sort().forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent = d; sel.appendChild(o); }); }
+
+document.getElementById('searchInput').addEventListener('input', function(){ const v=this.value.toLowerCase(); document.querySelectorAll('#requestsBody tr').forEach(tr=> tr.style.display = tr.innerText.toLowerCase().includes(v)?'':'none'); });
+document.getElementById('departmentFilter').addEventListener('change', function(){ const val=this.value; document.querySelectorAll('#requestsBody tr').forEach(tr=>{ tr.style.display = (val==='all' || tr.dataset.department===val)?'':'none'; }); });
+
+window.addEventListener('DOMContentLoaded', loadRequests);
+</script>
+</body>
+</html>

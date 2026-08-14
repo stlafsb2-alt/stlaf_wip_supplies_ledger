@@ -19,11 +19,7 @@ $conn = $db->getConnection();
 $stock = new StockOut($conn);
 
 $statsResult = $stock->getStockOutStatistics($month, $year);
-
-$stats = [];
-while ($row = $statsResult->fetch_assoc()) {
-    $stats[] = $row;
-}
+$stats = $statsResult->fetchAll(PDO::FETCH_ASSOC);
 
 $monthName = $month ? date("F", mktime(0, 0, 0, $month, 1)) : "All";
 
@@ -41,7 +37,7 @@ $html = '
     <tbody>';
 
 foreach ($stats as $s) {
-    $itemName = $s['item_name'] ?? 'No Name';
+    $itemName = $s['description'] ?? 'No Name';
     $qty = $s['total_qty_out'] ?? 0;
 
     $html .= '

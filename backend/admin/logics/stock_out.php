@@ -10,19 +10,16 @@ class StockOut
     public function addStockOut($item_id, $qty_out, $remarks)
     {
         $stmt = $this->conn->prepare("SELECT qty_on_hand FROM items WHERE id=?");
-        $stmt->bind_param("i", $item_id);
-        $stmt->execute();
-        $res = $stmt->get_result()->fetch_assoc();
+        $stmt->execute([$item_id]);
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$res || $res['qty_on_hand'] < $qty_out) return -1;
 
         $stmt = $this->conn->prepare("UPDATE items SET qty_on_hand = qty_on_hand - ? WHERE id=?");
-        $stmt->bind_param("ii", $qty_out, $item_id);
-        $stmt->execute();
+        $stmt->execute([$qty_out, $item_id]);
 
         $stmt = $this->conn->prepare("INSERT INTO stock_out (item_id, qty_out, date_out, remarks) VALUES (?, ?, NOW(), ?)");
-        $stmt->bind_param("iis", $item_id, $qty_out, $remarks);
-        return $stmt->execute();
+        return $stmt->execute([$item_id, $qty_out, $remarks]);
     }
 
     public function getItems()
@@ -73,19 +70,19 @@ class StockOut
     {
         $sql = "
         SELECT 
-            i.description AS item_name,
+            i.description,
             SUM(COALESCE(s.qty_out, 0)) AS total_qty_out
         FROM items i
         LEFT JOIN stock_out s ON i.id = s.item_id
-        WHERE 1
+        WHERE true
     ";
 
         if (!empty($month)) {
-            $sql .= " AND MONTH(s.date_out) = " . intval($month);
+            $sql .= " AND EXTRACT(MONTH FROM s.date_out) = " . intval($month);
         }
 
         if (!empty($year)) {
-            $sql .= " AND YEAR(s.date_out) = " . intval($year);
+            $sql .= " AND EXTRACT(YEAR FROM s.date_out) = " . intval($year);
         }
 
         $sql .= "

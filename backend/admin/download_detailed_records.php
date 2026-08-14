@@ -17,19 +17,21 @@ $year = $_GET['year'] ?? null;
 $db = new Database();
 $conn = $db->getConnection();
 
-$sql = "SELECT name, department, item, unit, quantity, date_req, status 
-        FROM req_form
-        WHERE status='Delivered'";
-
+$sql = "SELECT name, department, item, unit, quantity, date_req, status FROM req_form WHERE status='Delivered'";
+$params = [];
 if ($month) {
-    $sql .= " AND MONTH(date_req) = '" . $conn->real_escape_string($month) . "'";
+    $sql .= " AND EXTRACT(MONTH FROM date_req) = ?";
+    $params[] = (int)$month;
 }
 if ($year) {
-    $sql .= " AND YEAR(date_req) = '" . $conn->real_escape_string($year) . "'";
+    $sql .= " AND EXTRACT(YEAR FROM date_req) = ?";
+    $params[] = (int)$year;
 }
 $sql .= " ORDER BY date_req DESC";
 
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+$stmt->execute($params);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $monthName = $month ? date("F", mktime(0, 0, 0, $month, 1)) : "All Months";
 
 $html = '
@@ -60,18 +62,9 @@ $html = '
     </thead>
     <tbody>';
 
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $html .= '
-        <tr>
-            <td>' . htmlspecialchars($row['name']) . '</td>
-            <td>' . htmlspecialchars($row['department']) . '</td>
-            <td>' . htmlspecialchars($row['item']) . '</td>
-            <td>' . htmlspecialchars($row['quantity'] ?: '-') . '</td>
-            <td>' . htmlspecialchars($row['unit'] ?: '-') . '</td>
-            <td>' . date("Y-m-d H:i", strtotime($row['date_req'])) . '</td>
-            <td style="font-weight:bold;">' . htmlspecialchars($row['status']) . '</td>
-        </tr>';
+if (count($rows) > 0) {
+    foreach ($rows as $row) {
+        $html .= "\n        <tr>\n            <td>" . htmlspecialchars($row['name']) . "</td>\n            <td>" . htmlspecialchars($row['department']) . "</td>\n            <td>" . htmlspecialchars($row['item']) . "</td>\n            <td>" . htmlspecialchars($row['quantity'] ?: '-') . "</td>\n            <td>" . htmlspecialchars($row['unit'] ?: '-') . "</td>\n            <td>" . date("Y-m-d H:i", strtotime($row['date_req'])) . "</td>\n            <td style=\"font-weight:bold;\">" . htmlspecialchars($row['status']) . "</td>\n        </tr>";
     }
 } else {
     $html .= '<tr><td colspan="6" style="text-align:center;">No records found for the selected period.</td></tr>';

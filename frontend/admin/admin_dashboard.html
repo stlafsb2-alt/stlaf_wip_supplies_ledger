@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STLAF | Dashboard</title>
+    <link rel="icon" type="image/png" href="/stlaf_wip_supplies_ledger/assets/images/sub_logo_light.png">
+    <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/style.css">
+    <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/admin/assets/super.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <div class="d-flex">
+        <aside id="sidebar" class="sidebar-toggle">
+            <div class="sidebar-logo mt-3">
+                <img src="/stlaf_wip_supplies_ledger/assets/images/official_logo.png" width="80px" height="80px">
+            </div>
+            <div class="menu-title">Navigation</div>
+
+            <li class="sidebar-item">
+                <a href="admin_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-cast"></i>
+                    <span style="font-size: 18px;">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="req_tab.html" class="sidebar-link active">
+                    <i class="bi bi-box"></i>
+                    <span style="font-size: 18px;">Employee Requests</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="ins_form.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Ins Forms</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_in.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Stock In</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="stock_out.html" class="sidebar-link active">
+                    <i class="bi bi-basket"></i>
+                    <span style="font-size: 18px;">Deducted Items</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="inventory_dashboard.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span style="font-size: 18px;">Supply Tracking</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="config_item.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Configuration</span></a>
+            </li>
+             <li class="sidebar-item">
+                <a href="supply.html" class="sidebar-link active"><i class="bi bi-gear"></i>
+                    <span>Update Supplier & Date</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="summary.html" class="sidebar-link active"><i class="bi bi-clipboard-data"></i></i>
+                    <span>Summary</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="archived_items.html" class="sidebar-link active"><i class="bi bi-archive"></i>
+                    <span>Archived Items</span></a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/stlaf_wip_supplies_ledger/logout.php" class="sidebar-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span style="font-size: 18px;">Logout</span>
+                </a>
+            </li>
+        </aside>
+
+        <div class="main">
+            <div class="topbar">
+                <div class="toggle">
+                    <button class="toggler-btn" type="button">
+                        <i class="bi bi-list-ul" style="font-size: 28px;"></i>
+                    </button>
+                </div>
+                <div class="logo d-flex align-items-center">
+                    <span class="username me-2 fw-bold text-primary">
+                        Admin
+                    </span>
+                </div>
+            </div>
+
+            <div style="width:95%; margin:20px auto; background:#f8f9fa; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                <div class="card shadow-lg border-0 p-4 rounded-4" style="height: 83vh;">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                        <h3 class="fw-bold m-0">Supply Requests Overview</h3>
+                        <input type="text" id="searchInput" class="form-control" style="max-width: 300px;" placeholder="🔍 Search request...">
+                    </div>
+                    <ul class="nav nav-tabs" id="requestTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab" aria-controls="approved" aria-selected="true">
+                                Approved
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="declined-tab" data-bs-toggle="tab" data-bs-target="#declined" type="button" role="tab" aria-controls="declined" aria-selected="false">
+                                Declined
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="delivered-tab" data-bs-toggle="tab" data-bs-target="#delivered" type="button" role="tab" aria-controls="delivered" aria-selected="false">
+                                Delivered
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content mt-3" id="requestTabsContent">
+                        <div class="tab-pane fade show active" id="approved" role="tabpanel" aria-labelledby="approved-tab">
+                            <div id="approvedContent">Loading...</div>
+                        </div>
+
+                        <div class="tab-pane fade" id="declined" role="tabpanel" aria-labelledby="declined-tab">
+                            <div id="declinedContent">Loading...</div>
+                        </div>
+                        <div class="tab-pane fade" id="delivered" role="tabpanel" aria-labelledby="delivered-tab">
+                            <div id="deliveredContent">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/frontend/admin/assets/admin.js"></script>
+    <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/all.min.js"></script>
+    <script>
+        function escapeHtml(s) { return String(s||'').replace(/[&<>"]+/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c)); }
+
+        function renderRequests(requests, filterStatus) {
+            const filtered = requests.filter(r => (r.status || '').toLowerCase() === (filterStatus || '').toLowerCase());
+            if (!filtered.length) return `<div class="text-center text-muted py-3">No ${escapeHtml(filterStatus)} requests found.</div>`;
+
+            const rows = filtered.map(r => {
+                const status = (r.status || '').toLowerCase();
+                const badge = status === 'delivered' ? 'success' : (status === 'cancelled' ? 'danger' : 'secondary');
+                return `
+                    <tr>
+                        <td><span class="fw-bold text-primary">${escapeHtml(r.req_id)}</span></td>
+                        <td>${escapeHtml(r.name)}</td>
+                        <td>${escapeHtml(r.department)}</td>
+                        <td>${escapeHtml(r.item)}</td>
+                        <td>${escapeHtml(r.size)}</td>
+                        <td>${escapeHtml(r.quantity)}</td>
+                        <td>${escapeHtml(r.unit)}</td>
+                        <td><span class="badge bg-${badge} px-3 py-2 shadow-sm">${escapeHtml(r.status)}</span></td>
+                        ${filterStatus.toLowerCase() === 'cancelled' ? `<td>${escapeHtml(r.cancel_reason || 'N/A')}</td>` : ''}
+                    </tr>`;
+            }).join('');
+
+            return `
+                <div class="table-responsive elegant-table mt-3" style="max-height: 600px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0 text-center">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Item</th>
+                                <th>Size</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Status</th>
+                                ${filterStatus.toLowerCase() === 'cancelled' ? '<th>Reason</th>' : ''}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        async function loadAllAndRender() {
+            try {
+                const res = await fetch('/stlaf_wip_supplies_ledger/backend/admin/admin_requests_json.php', { credentials: 'include' });
+                if (!res.ok) { throw new Error('network'); }
+                const requests = await res.json();
+
+                document.getElementById('approvedContent').innerHTML = renderRequests(requests, 'Approved');
+                document.getElementById('declinedContent').innerHTML = renderRequests(requests, 'Cancelled');
+                document.getElementById('deliveredContent').innerHTML = renderRequests(requests, 'Delivered');
+
+                // Wire search to filter rendered rows
+                const searchInput = document.getElementById('searchInput');
+                let timeout;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        const q = searchInput.value.toLowerCase();
+                        document.querySelectorAll('.tab-pane .table tbody tr').forEach(tr => {
+                            tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
+                        });
+                    }, 200);
+                });
+
+            } catch (e) {
+                document.getElementById('approvedContent').innerText = 'Error loading';
+                document.getElementById('declinedContent').innerText = 'Error loading';
+                document.getElementById('deliveredContent').innerText = 'Error loading';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllAndRender();
+            // Optional: poll every 60s
+            setInterval(loadAllAndRender, 60000);
+        });
+    </script>
+</body>
+
+</html>

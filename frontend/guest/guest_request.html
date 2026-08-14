@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>STLAF | Request Form</title>
+  <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/guest/assets/style.css">
+  <link rel="stylesheet" href="/stlaf_wip_supplies_ledger/frontend/guest/assets/loader.css">
+  <link rel="icon" href="/stlaf_wip_supplies_ledger/assets/images/sub_logo_light.png">
+</head>
+<body>
+<nav class="navbar px-4 bg-light"><div class="d-flex align-items-center"><img src="/stlaf_wip_supplies_ledger/assets/images/official_logo.png" width="80"></div><div><a href="/stlaf_wip_supplies_ledger/logout.php"><button class="logout-btn">Logout</button></a></div></nav>
+<div class="container mt-4">
+  <div class="card shadow p-4" style="max-width:900px; margin:auto;">
+    <h3 class="mb-2 fw-bold">Submit Supply Request</h3>
+    <div id="loader" style="display:none;"><div class="spinner-border text-primary" role="status"></div><p>Submitting request...</p></div>
+    <form id="requestForm">
+      <div class="mb-2"><label class="form-label">Your Name</label><input name="name" class="form-control" required></div>
+      <div class="mb-2"><label class="form-label">Department</label>
+        <select name="department" class="form-select" id="departmentSelect"><option value="" disabled selected>Select department</option><option value="all">All Departments</option><option value="hr">HR</option><option value="accounting">Accounting</option><option value="corporate">Corporate</option><option value="litigation">Litigation</option><option value="marketing">Marketing</option><option value="it">IT</option><option value="ops">Operations</option><option value="admin">Admin</option></select>
+      </div>
+
+      <h5 class="mb-2 fw-bold">Request Details</h5>
+      <div class="row mb-2 position-relative">
+        <div class="col-md-8">
+          <label class="form-label">Item Name</label>
+          <input type="text" id="itemSearch" class="form-control" placeholder="Type to search..." autocomplete="off">
+          <div id="itemList" class="list-group position-absolute w-100"></div>
+          <input type="hidden" id="selectedItem">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Product ID</label>
+          <input type="text" id="productID" class="form-control" readonly>
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6"><label class="form-label">Quantity</label><input type="number" id="quantityField" class="form-control"></div>
+        <div class="col-md-6"><label class="form-label">Unit</label><input type="text" id="unitField" class="form-control" readonly></div>
+      </div>
+      <div class="mb-3"><button type="button" id="addItemBtn" class="btn btn-outline-secondary w-100">+ Add Item</button></div>
+      <div class="table-wrapper mb-3"><table class="table table-bordered" id="itemsTable"><thead class="table-light"><tr><th class="text-center">Item Name</th><th class="text-center">Product ID</th><th class="text-center">Quantity</th><th class="text-center">Unit</th><th class="text-center" style="width:50px">Remove</th></tr></thead><tbody></tbody></table></div>
+      <div class="d-flex justify-content-end gap-2"><button type="button" id="cancelBtn" class="btn btn-outline-secondary">Cancel</button><button type="submit" class="btn btn-primary">Submit Request</button></div>
+    </form>
+  </div>
+</div>
+
+<script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/stlaf_wip_supplies_ledger/frontend/guest/assets/guest.js"></script>
+<script>
+let itemsCache = [];
+async function loadItems(){ const res = await fetch('/stlaf_wip_supplies_ledger/backend/guest/items_json.php',{credentials:'include'}); if(!res.ok) return; const j=await res.json(); itemsCache = j.items||[]; // expose in format guest.js expects
+  window.items = itemsCache.map(it=>({ id: it.id, name: it.description, unit: it.unit }));
+}
+
+document.getElementById('itemSearch').addEventListener('input', function(){ const v=this.value.toLowerCase(); const list=document.getElementById('itemList'); list.innerHTML=''; if(!v) return; itemsCache.filter(i=>i.description.toLowerCase().includes(v)).slice(0,8).forEach(it=>{ const a=document.createElement('button'); a.type='button'; a.className='list-group-item list-group-item-action'; a.textContent = it.description + ' ('+it.unit+')'; a.dataset.id = it.id; a.dataset.unit = it.unit; a.addEventListener('click', ()=>{ document.getElementById('itemSearch').value = it.description; document.getElementById('unitField').value = it.unit; document.getElementById('productID').value = it.id; document.getElementById('itemList').innerHTML=''; document.getElementById('selectedItem').value = it.id; }); list.appendChild(a); }); });
+
+document.getElementById('addItemBtn').addEventListener('click', function(){ const name=document.getElementById('itemSearch').value; const id=document.getElementById('selectedItem').value||''; const qty=document.getElementById('quantityField').value||0; const unit=document.getElementById('unitField').value||''; if(!name||!id||!qty) return alert('Select item and quantity'); const tbody=document.querySelector('#itemsTable tbody'); const tr=document.createElement('tr'); tr.innerHTML=`<td>${name}<input type="hidden" name="item[]" value="${name}"><input type="hidden" name="product_id[]" value="${id}"></td><td class="text-center">${id}</td><td class="text-center"><input type="hidden" name="quantity[]" value="${qty}">${qty}</td><td class="text-center"><input type="hidden" name="unit[]" value="${unit}">${unit}</td><td class="text-center"><button class="btn btn-sm btn-danger remove">×</button></td>`; tbody.appendChild(tr); tr.querySelector('.remove').addEventListener('click', ()=>tr.remove()); document.getElementById('itemSearch').value=''; document.getElementById('unitField').value=''; document.getElementById('quantityField').value=''; document.getElementById('selectedItem').value=''; document.getElementById('productID').value=''; });
+
+document.getElementById('requestForm').addEventListener('submit', async function(e){ e.preventDefault(); const loader=document.getElementById('loader'); loader.style.display='block'; const form = new FormData(this); document.querySelectorAll('#itemsTable tbody input').forEach(i=> form.append(i.name, i.value)); const res = await fetch('/stlaf_wip_supplies_ledger/backend/guest/request_submit.php',{method:'POST', credentials:'include', body: form}); const j=await res.json(); loader.style.display='none'; if(j.status==='success'){ alert('Submitted'); document.querySelector('#itemsTable tbody').innerHTML=''; } else alert(j.message||'Failed'); });
+
+document.getElementById('cancelBtn').addEventListener('click', ()=>{ document.getElementById('requestForm').reset(); document.querySelector('#itemsTable tbody').innerHTML=''; });
+
+window.addEventListener('DOMContentLoaded', loadItems);
+</script>
+</body>
+</html>

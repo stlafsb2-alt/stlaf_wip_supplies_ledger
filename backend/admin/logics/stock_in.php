@@ -10,12 +10,8 @@ class StockIn
 
     public function addItem($description, $unit, $unit_price, $supplier, $department, $threshold, $qty_on_hand)
     {
-        $stmt = $this->conn->prepare("
-            INSERT INTO items (description, unit, unit_price, supplier, department, threshold, qty_on_hand)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->bind_param("ssdsiii", $description, $unit, $unit_price, $supplier, $department, $threshold, $qty_on_hand);
-        return $stmt->execute();
+        $stmt = $this->conn->prepare("INSERT INTO items (description, unit, unit_price, supplier, department, threshold, qty_on_hand) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        return $stmt->execute([$description, $unit, $unit_price, $supplier, $department, $threshold, $qty_on_hand]);
     }
 
     public function addStockIn($item_id, $qty_in, $remarks, $supplier, $stock_date)
@@ -23,23 +19,13 @@ class StockIn
         if ($qty_in <= 0) return false;
 
         $stmt = $this->conn->prepare("INSERT INTO stock_in (item_id, qty_in, remarks) VALUES (?, ?, ?)");
-        $stmt->bind_param("iis", $item_id, $qty_in, $remarks);
-        $insert = $stmt->execute();
+        $insert = $stmt->execute([$item_id, $qty_in, $remarks]);
 
         if (!$insert) return false;
 
-        $stmt2 = $this->conn->prepare("
-            UPDATE items 
-            SET qty_on_hand = qty_on_hand + ?, 
-                last_stock_added = ?, 
-                supplier = ?, 
-                created_at = ? 
-            WHERE id = ?
-        ");
+        $stmt2 = $this->conn->prepare("UPDATE items SET qty_on_hand = qty_on_hand + ?, last_stock_added = ?, supplier = ?, created_at = ? WHERE id = ?");
 
-        $stmt2->bind_param("iissi", $qty_in, $qty_in, $supplier, $stock_date, $item_id);
-
-        return $stmt2->execute();
+        return $stmt2->execute([$qty_in, $qty_in, $supplier, $stock_date, $item_id]);
     }
 
     public function getItems()
