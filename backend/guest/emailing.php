@@ -19,6 +19,7 @@ function sendSupplyRequestEmail($name, $department, $items, $product_ids, $quant
         $mail->Password   = 'ydzx yaii jqif pzza';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
+        $mail->Timeout    = 10; // fail fast if the network blocks/drops outbound SMTP, rather than hanging
 
         $mail->setFrom('stlaf.it01@gmail.com', 'Supply Request Notice');
         $mail->addAddress('stlaf.purchasing@gmail.com');

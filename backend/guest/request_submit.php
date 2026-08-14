@@ -8,6 +8,13 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Release the session's exclusive file lock now that we've confirmed the
+// user is logged in -- PHP holds this lock for the whole request otherwise,
+// which meant a slow step below (e.g. the SMTP call) could block every
+// other request using the same session, including something as simple as
+// clicking Logout in another tab.
+session_write_close();
+
 header('Content-Type: application/json; charset=utf-8');
 
 // TEMPORARY diagnostic wrapper: the server is returning an empty body on
