@@ -10,6 +10,13 @@ if (!isset($_SESSION['user_id'])) {
 
 header('Content-Type: application/json; charset=utf-8');
 
+// TEMPORARY diagnostic wrapper: the server is returning an empty body on
+// error instead of a normal PHP error page, so this catches anything --
+// including a genuine Error (missing class, etc.), not just Exception --
+// and reports it back in the JSON response so we can actually see it.
+// Remove this try/catch once the real bug is found and fixed.
+try {
+
 $name        = $_POST['name'] ?? '';
 $department  = $_POST['department'] ?? '';
 $items       = $_POST['item'] ?? [];
@@ -59,3 +66,14 @@ if ($department === 'all') {
 
 if ($ok) echo json_encode(['status'=>'success','message'=>'Requests submitted']);
 else echo json_encode(['status'=>'error','message'=>'One or more inserts failed']);
+
+} catch (\Throwable $e) {
+    http_response_code(500);
+    echo json_encode([
+        'status'  => 'error',
+        'message' => $e->getMessage(),
+        'type'    => get_class($e),
+        'file'    => $e->getFile(),
+        'line'    => $e->getLine(),
+    ]);
+}
