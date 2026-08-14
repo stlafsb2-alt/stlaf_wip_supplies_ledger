@@ -10,7 +10,10 @@ if (!isset($_SESSION['user_id'])) {
 $db = new Database();
 $conn = $db->getConnection();
 
-$stmt = $conn->prepare("SELECT * FROM req_form ORDER BY date_req DESC");
+$stmt = $conn->prepare("SELECT req_id, name, department, item, size, product_id, quantity, unit,
+    to_char(date_req AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') || '+00' AS date_req,
+    status, cancel_reason
+    FROM req_form ORDER BY date_req DESC");
 $stmt->execute();
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
