@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../sql/config.php';
-require_once __DIR__ . '/assets/emailing.php';
+require_once __DIR__ . '/emailing.php';
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(403);
