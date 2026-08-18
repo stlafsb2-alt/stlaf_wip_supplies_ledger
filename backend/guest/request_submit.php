@@ -38,6 +38,13 @@ if (empty($name) || empty($department) || empty($items)) {
     exit;
 }
 
+foreach ($quantities as $q) {
+    if (!is_numeric($q) || (int)$q <= 0) {
+        echo json_encode(['status'=>'error','message'=>'Quantity must be a positive number for every item.']);
+        exit;
+    }
+}
+
 $db = new Database();
 $conn = $db->getConnection();
 

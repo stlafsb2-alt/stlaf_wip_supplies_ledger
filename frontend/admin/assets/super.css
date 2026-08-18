@@ -149,3 +149,42 @@ a.sidebar-link:hover {
     margin: 0;
     color: #323a46;
 }
+
+.dot-bounce {
+    display: inline-block;
+    position: relative;
+    width: 5px;
+    height: 5px;
+    margin-left: 14px;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: dotBounce 1.4s infinite ease-in-out;
+    animation-delay: 0.16s;
+}
+
+.dot-bounce::before,
+.dot-bounce::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: dotBounce 1.4s infinite ease-in-out;
+}
+
+.dot-bounce::before {
+    left: -9px;
+    animation-delay: 0s;
+}
+
+.dot-bounce::after {
+    left: 9px;
+    animation-delay: 0.32s;
+}
+
+@keyframes dotBounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+    40% { transform: translateY(-6px); opacity: 1; }
+}

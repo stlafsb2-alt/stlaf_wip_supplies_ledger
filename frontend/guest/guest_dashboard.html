@@ -28,7 +28,7 @@
 						<div id="itemList" class="list-group position-relative"></div>
 					</div>
 					<div class="row g-2 mb-2">
-						<div class="col-md-6"><input id="quantityField" type="number" class="form-control" placeholder="Qty"></div>
+						<div class="col-md-6"><input id="quantityField" type="number" min="1" class="form-control" placeholder="Qty"></div>
 						<div class="col-md-6"><input id="unitField" class="form-control" readonly placeholder="Unit"></div>
 					</div>
 					<button id="addItemBtn" type="button" class="btn btn-outline-secondary w-100 mb-2">+ Add Item</button>
@@ -40,21 +40,24 @@
 		<div class="col-md-8">
 			<div class="card shadow p-4" style="height:85vh; overflow:auto;">
 				<div class="d-flex justify-content-between mb-2"><h4 class="m-0">All Requests</h4><input id="searchInput" class="form-control w-25" placeholder="🔍 Search..."></div>
-				<div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle" id="requestsTable"><thead class="table-primary"><tr><th>#</th><th>Name</th><th>Item</th><th>Qty</th><th>Unit</th><th>Department</th><th>Status</th><th>Date Requested</th></tr></thead><tbody id="requestsBody">Loading...</tbody></table></div>
+				<div class="table-responsive"><table class="table table-bordered table-hover text-center align-middle" id="requestsTable"><thead class="table-primary"><tr><th>#</th><th>Name</th><th>Item</th><th>Qty</th><th>Unit</th><th>Department</th><th>Status</th><th>Date Requested</th></tr></thead><tbody id="requestsBody">Loading<span class="dot-bounce"></span></tbody></table></div>
+				<nav><ul class="pagination justify-content-center" id="requestsPagination"></ul></nav>
 			</div>
 		</div>
 	</div>
 </div>
 <script src="/stlaf_wip_supplies_ledger/assets/bootstrap/bootstrap.bundle.min.js"></script>
 <script src="/stlaf_wip_supplies_ledger/assets/toast.js"></script>
+<script src="/stlaf_wip_supplies_ledger/assets/pagination.js"></script>
 <script>
 let itemsCache = [];
 async function loadItems(){ const res = await fetch('/stlaf_wip_supplies_ledger/backend/guest/items_json.php',{credentials:'include'}); if(!res.ok) return; const j=await res.json(); itemsCache = j.items||[]; }
-async function loadRequests(){ const res = await fetch('/stlaf_wip_supplies_ledger/backend/guest/requests_json.php',{credentials:'include'}); if(!res.ok) return; const j=await res.json(); const body=document.getElementById('requestsBody'); body.innerHTML=''; (j.requests||[]).forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.req_id}</td><td>${r.name}</td><td>${r.item}</td><td>${r.quantity}</td><td>${r.unit}</td><td>${r.department}</td><td>${r.status}</td><td>${r.date_req}</td>`; body.appendChild(tr); }); }
+async function loadRequests(page=1, search=''){ const url = `/stlaf_wip_supplies_ledger/backend/guest/requests_json.php?page=${page}&limit=20&search=${encodeURIComponent(search)}`; const res = await fetch(url,{credentials:'include'}); if(!res.ok) return; const j=await res.json(); const body=document.getElementById('requestsBody'); body.innerHTML=''; (j.requests||[]).forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.req_id}</td><td>${r.name}</td><td>${r.item}</td><td>${r.quantity}</td><td>${r.unit}</td><td>${r.department}</td><td>${r.status}</td><td>${r.date_req}</td>`; body.appendChild(tr); });
+	renderPagination(document.getElementById('requestsPagination'), j.page||1, j.totalPages||1, function(p){ loadRequests(p, document.getElementById('searchInput').value); }); }
 
 document.getElementById('itemSearch').addEventListener('input', function(){ const v=this.value.toLowerCase(); const list=document.getElementById('itemList'); list.innerHTML=''; if(!v) return; itemsCache.filter(i=>i.description.toLowerCase().includes(v)).slice(0,8).forEach(it=>{ const a=document.createElement('button'); a.type='button'; a.className='list-group-item list-group-item-action'; a.textContent = it.description + ' ('+it.unit+')'; a.dataset.id = it.id; a.dataset.unit = it.unit; a.addEventListener('click', ()=>{ document.getElementById('itemSearch').value = it.description; document.getElementById('unitField').value = it.unit; document.getElementById('itemList').innerHTML=''; document.getElementById('itemSearch').dataset.selected = it.id; }); list.appendChild(a); }); });
 
-document.getElementById('addItemBtn').addEventListener('click', function(){ const name=document.getElementById('itemSearch').value; const id=document.getElementById('itemSearch').dataset.selected||''; const qty=document.getElementById('quantityField').value||0; const unit=document.getElementById('unitField').value||''; if(!name||!id||!qty) return showToast('Select an item and quantity first.', false); const tbody=document.querySelector('#itemsTable tbody'); const tr=document.createElement('tr'); tr.innerHTML=`<td>${name}<input type="hidden" name="item[]" value="${name}"><input type="hidden" name="product_id[]" value="${id}"></td><td class="text-center">${id}</td><td class="text-center"><input type="hidden" name="quantity[]" value="${qty}">${qty}</td><td class="text-center"><input type="hidden" name="unit[]" value="${unit}">${unit}</td><td class="text-center"><button class="btn btn-sm btn-danger remove">×</button></td>`; tbody.appendChild(tr); tr.querySelector('.remove').addEventListener('click', ()=>tr.remove()); document.getElementById('itemSearch').value=''; document.getElementById('unitField').value=''; document.getElementById('quantityField').value=''; });
+document.getElementById('addItemBtn').addEventListener('click', function(){ const name=document.getElementById('itemSearch').value; const id=document.getElementById('itemSearch').dataset.selected||''; const qty=document.getElementById('quantityField').value||0; const unit=document.getElementById('unitField').value||''; if(!name||!id||!qty||Number(qty)<=0) return showToast('Select an item and enter a quantity greater than 0.', false); const tbody=document.querySelector('#itemsTable tbody'); const tr=document.createElement('tr'); tr.innerHTML=`<td>${name}<input type="hidden" name="item[]" value="${name}"><input type="hidden" name="product_id[]" value="${id}"></td><td class="text-center">${id}</td><td class="text-center"><input type="hidden" name="quantity[]" value="${qty}">${qty}</td><td class="text-center"><input type="hidden" name="unit[]" value="${unit}">${unit}</td><td class="text-center"><button class="btn btn-sm btn-danger remove">×</button></td>`; tbody.appendChild(tr); tr.querySelector('.remove').addEventListener('click', ()=>tr.remove()); document.getElementById('itemSearch').value=''; document.getElementById('unitField').value=''; document.getElementById('quantityField').value=''; });
 
 document.getElementById('requestForm').addEventListener('submit', async function(e){ e.preventDefault(); const submitBtn = this.querySelector('button[type="submit"]'); if (submitBtn.disabled) return; submitBtn.disabled = true; const originalLabel = submitBtn.textContent; submitBtn.textContent = 'Submitting...'; const form = new FormData(this); // FormData already picks up the hidden item[]/product_id[]/quantity[]/unit[] inputs, since itemsTable is nested inside this <form>
 	try {
@@ -64,7 +67,7 @@ document.getElementById('requestForm').addEventListener('submit', async function
 	}
 });
 
-document.getElementById('searchInput').addEventListener('input', function(){ const v=this.value.toLowerCase(); document.querySelectorAll('#requestsBody tr').forEach(tr=> tr.style.display = tr.innerText.toLowerCase().includes(v)?'':'none'); });
+document.getElementById('searchInput').addEventListener('input', function(){ loadRequests(1, this.value); });
 
 window.addEventListener('DOMContentLoaded', async ()=>{ await loadItems(); await loadRequests(); });
 </script>
